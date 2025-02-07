@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { getCompilerDiagnostics } from '../../../utils/ts-utils.ts';
 import { join } from 'path';
-import { UserModule } from './task.ts';
+import { User, UserModule } from './task.ts';
 
 describe('Strict mode', () => {
   it('should compile when strict mode is enabled', () => {
@@ -17,7 +17,7 @@ describe('Strict mode', () => {
 
     userModule.removeUser(2);
 
-    const result = userModule.filterUsers((user) => ({ isValid: user.name.startsWith('J') }));
+    const result = userModule.filterUsers((user: User) => ({ isValid: user.name.startsWith('J') }));
     expect(result).toEqual([{ id: 1, name: 'John' }]);
   });
 });
