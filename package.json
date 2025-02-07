@@ -15,7 +15,8 @@
     "raport:html:serve": "vite preview --outDir html --port 3100",
     "summary": "npm run raport:json && npm run raport:json:serve",
     "summary:vitest": "npm run raport:html && npm run raport:html:serve",
-    "_internal:test": "npm run verify 000-intro && npm run verify 000-intro-react"
+    "_internal:test": "npm run verify 000-intro && npm run verify 000-intro-react",
+    "tsc": "tsc"
   },
   "author": "Przeprogramowani",
   "license": "ISC",
