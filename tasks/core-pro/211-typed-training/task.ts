@@ -1,22 +1,22 @@
 import { type User, regularUser } from './user-model.ts';
 
-const formatName = (firstName, lastName) => {
+const formatName = (firstName: User['firstName'], lastName: User['lastName']) => {
   return `${firstName} ${lastName}`;
 };
 
-const formatAddress = (address) => {
+const formatAddress = (address: User['address']) => {
   return `${address.street}, ${address.city}, ${address.country} ${address.postalCode}`;
 };
 
-const isCandidateForDeletion = (role, isActive) => {
+const isCandidateForDeletion = (role: User['role'], isActive: User['isActive']) => {
   return role === 'guest' && !isActive;
 };
 
-const getUserLocale = (settings) => {
+const getUserLocale = (settings: User['settings']) => {
   return settings.language || 'en';
 };
 
-const validateAge = (dateOfBirth, minAge) => {
+const validateAge = (dateOfBirth: User['dateOfBirth'], minAge: number) => {
   const today = new Date();
   const age = today.getFullYear() - dateOfBirth.getFullYear();
   const monthDiff = today.getMonth() - dateOfBirth.getMonth();
@@ -28,11 +28,11 @@ const validateAge = (dateOfBirth, minAge) => {
   return age >= minAge;
 };
 
-const hasPhone = (phoneNumbers) => {
+const hasPhone = (phoneNumbers: User['phoneNumbers']) => {
   return phoneNumbers.length > 0;
 };
 
-const canSendEmailNotification = (email, settings) => {
+const canSendEmailNotification = (email: User['email'], settings: User['settings']) => {
   return Boolean(email) && settings.notifications;
 };
 
