@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { IdentityProcessor } from './identity.ts';
+import { IdentityProcessor, RedditIdentity } from './identity.ts';
 import { join } from 'path';
 import { getCompilerDiagnostics } from '../../../utils/ts-utils.ts';
 

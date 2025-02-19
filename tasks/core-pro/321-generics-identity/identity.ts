@@ -10,7 +10,7 @@ interface AppleIdentity {
   userName: string;
 }
 
-interface RedditIdentity {
+export interface RedditIdentity {
   id: string;
   provider: 'reddit';
   userName: string;
@@ -55,4 +55,27 @@ class RedditIdentityProcessor {
   }
 }
 
-export class IdentityProcessor {}
+type Identities = {
+  reddit: RedditIdentity,
+  google: GoogleIdentity,
+  apple: AppleIdentity,
+  facebook: AppleIdentity
+}
+
+type Providers = keyof Identities
+
+export class IdentityProcessor<T extends Providers> {
+  provider: string
+
+  constructor(identityProvider: T) {
+    this.provider = identityProvider
+  }
+
+  findById(id: string): Identities[T] | undefined {
+    return users.find((user) => user.id === id && user.provider === this.provider) as Identities[T] | undefined;
+  }
+
+  findByUserName(userName: string): Identities[T] | undefined {
+    return users.find((user) => user.userName === userName && user.provider === this.provider) as Identities[T] | undefined;
+  }
+}
