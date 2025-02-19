@@ -17,6 +17,8 @@ describe('Generic Message Bug', () => {
     };
     const tracker = new InventoryStockTracker(bus, stock);
 
+    tracker.subscribeToMessages()
+
     bus.publish<OrderCreatedMessage>({
       type: 'orderCreated',
       payload: {
@@ -49,4 +51,19 @@ describe('Generic Message Bug', () => {
     expect(tracker.getStock('PRD1')).toBe(7);
     expect(tracker.getStock('PRD2')).toBe(8);
   });
+
+  it('', () => {
+    const myBus = new MessageBus()
+    myBus.subscribe("orderCreated", (message) => console.log('jestem subskrybentem', message))
+
+    myBus.publish({
+      type: 'orderCreated',
+      payload: {
+        orderId: '3',
+        items: [{ productId: 'PRD2', quantity: 2 }],
+      },
+    })
+
+    console.log(myBus.subscribe, "subscribers")
+  })
 });
