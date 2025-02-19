@@ -4,26 +4,28 @@ interface Message {
   type: MessageType;
 }
 
-type OrderMessage = OrderCreatedMessage
-
 interface Subscription {
-  type: MessageType;
-  subscriber: (arg: OrderMessage) => void;
+  type: Message["type"];
+  subscriber: (arg: any) => void;
 }
 
-interface Order {
+interface OrderCreatedPayload {
   orderId: string;
   items: { productId: string; quantity: number }[];
 }
 
+interface OrderCancelledPayload {
+  orderId: string
+}
+
 export interface OrderCreatedMessage {
   type: 'orderCreated';
-  payload: Order;
+  payload: OrderCreatedPayload;
 }
 
 export interface OrderCancelledMessage {
   type: 'orderCancelled';
-  payload: { orderId: string };
+  payload: OrderCancelledPayload;
 }
 
 type Stock = Record<string, number>
@@ -32,11 +34,11 @@ export class MessageBus {
   private subscriptions: Subscription[] = [];
 
 
-  subscribe(type: MessageType, subscriber: (message: OrderMessage) => void): void {
+  subscribe<T extends OrderCreatedMessage | OrderCancelledMessage>(type: T["type"], subscriber: (message: T) => void): void {
     this.subscriptions.push({ type, subscriber });
   }
 
-  publish(message: OrderMessage): void {
+  publish<T extends OrderCreatedMessage | OrderCancelledMessage>(message: T): void {
     const subscriptionToFullfill = this.subscriptions.filter((subscription) => subscription.type === message.type)
     subscriptionToFullfill.forEach(subscription => subscription.subscriber(message))
   }
@@ -45,7 +47,7 @@ export class MessageBus {
 export class InventoryStockTracker {
   private bus: MessageBus
   private stock: Stock
-  private orders: Order[] = []
+  private orders: OrderCreatedPayload[] = []
 
   constructor(bus: MessageBus, stock: Stock) {
     this.bus = bus
@@ -53,16 +55,15 @@ export class InventoryStockTracker {
   }
 
   subscribeToMessages(): void {
-    this.bus.subscribe("orderCreated", (message) => {
+    this.bus.subscribe<OrderCreatedMessage>("orderCreated", (message) => {
       this.orders.push(message.payload)
 
       message.payload.items.forEach(item => {
         this.stock = { ...this.stock, [item.productId]: this.stock[item.productId] - item.quantity }
       })
-
-
     })
-    this.bus.subscribe("orderCancelled", (message) => {
+
+    this.bus.subscribe<OrderCancelledMessage>("orderCancelled", (message) => {
       const currentlyHandledOrderId = message.payload.orderId
       const currentOrder = this.orders.find(order => order.orderId === currentlyHandledOrderId)
 
