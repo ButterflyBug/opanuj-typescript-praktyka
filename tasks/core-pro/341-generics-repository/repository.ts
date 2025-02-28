@@ -1,9 +1,17 @@
 import { DataAccess } from './DataAccess.ts';
 
-export interface User {
-  id: number;
+interface Identifiable {
+  id?: number
+}
+
+export interface User extends Identifiable {
   name: string;
   email: string;
+}
+
+export interface Product extends Identifiable {
+  name: string;
+  price: number;
 }
 
 export class UserRepository {
@@ -35,11 +43,7 @@ export class UserRepository {
   }
 }
 
-export interface Product {
-  id?: number;
-  name: string;
-  price: number;
-}
+
 
 export class ProductRepository {
   private dataAccess: DataAccess;
@@ -70,4 +74,36 @@ export class ProductRepository {
   }
 }
 
-export class Repository<T extends { id?: number }> {}
+export class Repository<T extends Identifiable> {
+  private dataAccess: DataAccess
+  private tableName: string
+
+  constructor(dataAccess: DataAccess, tableName: string) {
+    this.dataAccess = dataAccess
+    this.tableName = tableName
+  }
+
+  async getById(id: number): Promise<T> {
+    const query = `SELECT * FROM ${this.tableName} WHERE id = $1`;
+    const values = [id];
+    const res = await this.dataAccess.query<T>(query, values);
+    return res.rows[0] as T;
+  }
+
+  async getAll(): Promise<T[]> {
+    const query = `SELECT * FROM ${this.tableName}`;
+    const res = await this.dataAccess.query<T>(query);
+    return res.rows;
+  }
+
+  async insert(item: T): Promise<T> {
+    // const { name, price } = product;
+    const columns = Object.keys(item).filter((key) => key !== "id")
+    const values = columns.map((_, i) => `$${i + 1}`)
+    const placeholders = columns.map((col) => (item as any)[col])
+    const query = `INSERT INTO ${this.tableName} (${columns.join(", ")}) VALUES (${values.join(", ")}) RETURNING *`;
+    // const values = [name, price];
+    const res = await this.dataAccess.query<T>(query, placeholders);
+    return res.rows[0];
+  }
+}

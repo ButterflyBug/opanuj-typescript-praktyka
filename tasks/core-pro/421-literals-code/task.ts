@@ -1,5 +1,12 @@
-export type Code = null;
+type Zero = "0"
+type One = "1"
+type Binary = Zero | One
+type Group = `${Binary}${Binary}${Binary}`
+
+export type Code = `${Group}-${Group}-${Group}`;
 
 export function codeToDecimal(code: Code) {
-  throw new Error('Not implemented');
+  const codeAsBinary = code.split("-").map(item => parseInt(item, 2))
+
+  return codeAsBinary.join("")
 }
